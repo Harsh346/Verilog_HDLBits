@@ -1,0 +1,40 @@
+Given an 8-bit input vector [7:0], reverse its bit ordering.
+
+
+module top_module( 
+    input [7:0] in,
+    output [7:0] out
+);
+//Approach 1:
+// Although correct, this is a very basic and lame approach- Hard coding or assigning individual bits one by one. Works fine when dealing with 1 vector but not so handy for a set of vectors.
+
+    assign out = {in[0],in[1],in[2],in[3],in[4],in[5],in[6],in[7]};
+
+//Aproach 2:
+//Using a for loop. This is more handy and logical.
+
+    always @(*) begin              // This is a construct for a combinational always block.
+        for(int i=0;i<8;i=i+1)
+            out[8-i-1] = in[i];    // Note: Cannot do continuos assignment inside a combinational always block.
+    end
+
+//Appraoch 3:
+	// It is also possible to do this with a generate-for loop. Generate loops look like procedural for loops,
+	// but are quite different in concept, and not easy to understand. Generate loops are used to make instantiations
+	// of "things" (Unlike procedural loops, it doesn't describe actions). These "things" are assign statements,
+	// module instantiations, net/variable declarations, and procedural blocks (things you can create when NOT inside 
+	// a procedure). Generate loops (and genvars) are evaluated entirely at compile time. You can think of generate
+	// blocks as a form of preprocessing to generate more code, which is then run though the logic synthesizer.
+	// In the example below, the generate-for loop first creates 8 assign statements at compile time, which is then
+	// synthesized.
+	// Note that because of its intended usage (generating code at compile time), there are some restrictions
+	// on how you use them. Examples: 1. Quartus requires a generate-for loop to have a named begin-end block
+	// attached (in this example, named "my_block_name"). 2. Inside the loop body, genvars are read only.
+
+	generate
+		genvar i;
+		for (i=0; i<8; i = i+1) begin: my_block_name
+			assign out[i] = in[8-i-1];
+		end
+	endgenerate
+endmodule
